@@ -43,15 +43,25 @@ public class Basket {
                 throw new ItemNotInStockException(String.format("'%s' does not exist in warehouse!", entry.getKey()));
             }
 
-            // only count every second item if 'buy one, get one' free (round up on odd amount)
-            if (item.isGetOneFree()) {
-                sum += Math.ceilDiv(entry.getValue(), 2) * item.price() * (100.0 - item.percentOff()) * 0.01;
-            } else {
-                sum += entry.getValue() * item.price() * (100.0 - item.percentOff()) * 0.01;
-            }
+            sum += priceOfItem(item, entry.getValue());
         }
 
         // round to two decimal points
         return new BigDecimal(sum).setScale(2, RoundingMode.DOWN).doubleValue();
+    }
+
+    /**
+     * Calculate the price for multiple items of a given type.
+     * @param item Type of item
+     * @param amount Amount of given item
+     * @return Total price for items of given type.
+     */
+    private static double priceOfItem(Item item, int amount) {
+        // only count every second item if 'buy one, get one' free (round up on odd amount)
+        if (item.isGetOneFree()) {
+            return Math.ceilDiv(amount, 2) * item.price() * (100.0 - item.percentOff()) * 0.01;
+        } else {
+            return amount * item.price() * (100.0 - item.percentOff()) * 0.01;
+        }
     }
 }
